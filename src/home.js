@@ -1,42 +1,46 @@
 //Логіка сторінки Home
+//Логіка сторінки Home
+import { handleClickCategories } from './js/handlers';
 import {
-  handleClickCategories,
-  handleClickProducts,
-  handleCloseModal,
-  handleSubmit,
-  formClear,
-  hadnleAddCart,
-  hadnleAddWishlist,
-} from './js/handlers';
-import { sumCountCarts, sumCountWishList } from './js/helpers';
-import { getCategoriesList, getProductsList } from './js/products-api';
+  getCategoriesList,
+  getProductsList,
+  loadIdProduct,
+} from './js/products-api';
 import refs from './js/refs';
 import { renderCategories, renderProducts } from './js/render-function';
-import { initStorage, initStorageWishList } from './js/storage';
-
-initStorage();
-initStorageWishList();
-sumCountCarts();
-sumCountWishList();
+import {
+  themeToggle,
+  openModalProduct,
+  closeModalProduct,
+} from './js/helpers.js';
+import { changeTheme } from './js/storage.js';
+import { modalProductRender } from './js/modal.js';
 
 async function homePage() {
   renderCategories(await getCategoriesList());
   const response = await getProductsList();
   renderProducts(response.products);
 }
-
+changeTheme();
+themeToggle();
 homePage();
 
 refs.categotiesList.addEventListener('click', handleClickCategories);
-
-refs.productsList.addEventListener('click', handleClickProducts);
-
-refs.modalCloseBtn.addEventListener('click', handleCloseModal);
-
-refs.searchForm.addEventListener('submit', handleSubmit);
-
-refs.formBtnClear.addEventListener('click', formClear);
-
-refs.addCartBtn.addEventListener('click', hadnleAddCart);
-
-refs.addWishListBtn.addEventListener('click', hadnleAddWishlist);
+refs.productsList.addEventListener('click', async event => {
+  const item = event.target.closest('.products__item');
+  if (!item) return;
+  const selectProduct = item.dataset.id;
+  openModalProduct();
+  try {
+    const product = await loadIdProduct(selectProduct);
+    modalProductRender(product);
+  } catch (error) {
+    console.log(error);
+  }
+});
+refs.closeModalBtn.addEventListener('click', closeModalProduct);
+refs.modalProduct.addEventListener('click', event => {
+  if (!refs.modalProductContent.contains(event.target)) {
+    closeModalProduct();
+  }
+});
