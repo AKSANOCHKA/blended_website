@@ -38,9 +38,3 @@ refs.productsList.addEventListener('click', async event => {
     console.log(error);
   }
 });
-refs.closeModalBtn.addEventListener('click', closeModalProduct);
-refs.modalProduct.addEventListener('click', event => {
-  if (!refs.modalProductContent.contains(event.target)) {
-    closeModalProduct();
-  }
-});
